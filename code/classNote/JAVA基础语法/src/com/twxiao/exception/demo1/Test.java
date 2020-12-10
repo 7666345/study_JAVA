@@ -11,10 +11,8 @@ public class Test {
 
     public  float add(int a, int b){
 
-        //还可以用throw在方法中主动抛出异常
-        if(b==0){
-            throw ArithmeticException;
-        }
+        //还可以用throw在方法中主动抛出异常,或者用throws在方法上抛出异常
+
 
         float result=0;
         try {
