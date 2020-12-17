@@ -1,0 +1,35 @@
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                      http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0"
+         metadata-complete="true">
+
+<!-- 注册Servlet -->
+  <servlet>
+<!-- 给Servlet起个名字，需要和下面mapping中的名字一致-->
+    <servlet-name>hello</servlet-name>
+<!-- 名字和Servlet类绑定-->
+    <servlet-class>com.twxiao.servlet.HelloServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>hello</servlet-name>
+<!--    在浏览器中的访问路径-->
+    <url-pattern>/hello</url-pattern>
+  </servlet-mapping>
+
+
+<!--404映射-->
+    <servlet>
+        <servlet-name>err</servlet-name>
+        <servlet-class>com.twxiao.servlet.ErrorServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>err</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+
+
+</web-app>

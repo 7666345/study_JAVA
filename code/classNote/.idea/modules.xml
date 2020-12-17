@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/JAVA基础语法/JAVA基础语法.iml" filepath="$PROJECT_DIR$/JAVA基础语法/JAVA基础语法.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JAVA网络编程/JAVA网络编程.iml" filepath="$PROJECT_DIR$/JAVA网络编程/JAVA网络编程.iml" />
     </modules>
   </component>
 </project>
