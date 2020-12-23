@@ -5,6 +5,42 @@
          version="4.0"
          metadata-complete="true">
 
+<!--    可以使用 <context-param>标签，设置一些web初始化参数，且可以通过上下文在servlet中取到-->
+    <context-param>
+        <param-name>mysqlurl</param-name>
+        <param-value>jdbc:mysql://localhost:3306/mybatis</param-value>
+    </context-param>
+
+    <servlet>
+        <servlet-name>geturl</servlet-name>
+        <servlet-class>com.twxiao.servlet.ContextServletDemo3</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>geturl</servlet-name>
+        <url-pattern>/geturl</url-pattern>
+    </servlet-mapping>
+
+<!--   Demo04-->
+    <servlet>
+        <servlet-name>demo4</servlet-name>
+        <servlet-class>com.twxiao.servlet.ServletContextDemo4</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>demo4</servlet-name>
+        <url-pattern>/demo4</url-pattern>
+    </servlet-mapping>
+
+    <!--   Demo05-->
+    <servlet>
+        <servlet-name>demo5</servlet-name>
+        <servlet-class>com.twxiao.servlet.ServletContextDemo5</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>demo5</servlet-name>
+        <url-pattern>/demo5</url-pattern>
+    </servlet-mapping>
+
+
 <!--    SetCongtentServlet-->
 <servlet>
     <servlet-name>set</servlet-name>

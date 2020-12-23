@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee
+                      http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0"
+         metadata-complete="true">
+
+<!--    FileDownload-->
+    <servlet>
+        <servlet-name>filedown</servlet-name>
+        <servlet-class>com.twxiao.response.FileDownload</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>filedown</servlet-name>
+        <url-pattern>/filedown</url-pattern>
+    </servlet-mapping>
+
+
+    <!--    VerificationCode-->
+    <servlet>
+        <servlet-name>verificode</servlet-name>
+        <servlet-class>com.twxiao.response.VerificationCode</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>verificode</servlet-name>
+        <url-pattern>/vcode</url-pattern>
+    </servlet-mapping>
+
+
+    <!--    UrlRedirect-->
+    <servlet>
+        <servlet-name>urlredirect</servlet-name>
+        <servlet-class>com.twxiao.response.UrlRedirect</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>urlredirect</servlet-name>
+        <url-pattern>/urldirect</url-pattern>
+    </servlet-mapping>
+
+</web-app>
