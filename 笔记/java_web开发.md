@@ -1035,6 +1035,82 @@ public class Login extends HttpServlet {
 
 ##### 7.1 会话
 
+​	保存会话的两种技术： 
+
+  1. cookie：客户端技术，向服务器请求响应时，服务器端从请求中取出cookie的信息进行匹配，也可以在响应请求时给cookie设置新值。
+
+     
+
+  2. session：服务端技术，可保存用户会话信息。
+
+     
+
+##### 7.2 cookie
+
+``` java
+Cookie[] cookies = req.getCookies(); //返回的是一个数组，说明cookie可以有多个
+cookie.getName()//取得cookie的key
+cookie.getValue()//取得cookie的value
+Cookie loginTimeCookie = new Cookie("loginTime", System.currentTimeMillis()+"");//新建cookie
+loginTimeCookie.setMaxAge(24*60*60);//设置cookie有效期为1天（1分=60秒，1小时=60分，1天=24小时）
+ resp.addCookie(loginTimeCookie);//cookie加入到对客户端的响应中
+```
+
+
+
+##### 7.3 session（重要）
+
+​	服务器会给每一个用户（浏览器）创建一个session。一个session独占一个浏览器，浏览器不关闭或者不主动注销session，就会一直存在。
+
+
+
+*  当session在服务器端生成时，服务端会自动给客户端响应一个name为 JSESSION的cookie，值为sessionID。
+
+
+
+``` java
+
+//获取session
+HttpSession session = req.getSession();
+
+//获取sessionID
+String sessionId = session.getId();
+
+//给session赋值
+session.setAttribute("name","Andy");
+
+//判断是不是刚刚创建的session
+        if(session.isNew()){
+            resp.getWriter().write("Session是新创建的,ID是："+sessionId);
+        }else{
+            resp.getWriter().write("Session早已存在："+sessionId);
+        }
+
+
+//////////////////获取session///////////////////////////
+
+ HttpSession session = req.getSession();
+ String name = (String) session.getAttribute("name");//session可以存object，所以返回的默认类型是object需要强转一下。
+
+
+//////////////////注销session///////////////////////////
+
+ HttpSession session = req.getSession();
+ session.invalidate();
+```
+
+
+
+* 除了在java中手动注销外，最好再 在web.xml中设置一个默认失效时间
+
+  ```xml
+  <!--   设置session的默认失效时间-->
+      <session-config>
+              <!--以分钟为单位-->
+          <session-timeout>15</session-timeout>
+      </session-config>
+  ```
+
 
 
 ## 日积月累

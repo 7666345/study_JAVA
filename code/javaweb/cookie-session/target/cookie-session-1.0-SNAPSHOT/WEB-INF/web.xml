@@ -57,11 +57,4 @@
         <url-pattern>/s3</url-pattern>
     </servlet-mapping>
 
-<!--   设置cookie和session的默认失效时间-->
-    <session-config>
-            <!--以分钟为单位-->
-        <session-timeout>15</session-timeout>
-    </session-config>
-
-
 </web-app>
