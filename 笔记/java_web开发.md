@@ -1113,6 +1113,478 @@ session.setAttribute("name","Andy");
 
 
 
+## 二、 JSP
+
+### 1. jsp原理
+
+ * jsp本质上还是一个servlet，因为jsp继承的父类继承了HttpServlet类。
+
+   ``` java
+   //初始化
+   public void _jspInit() {
+     }
+   
+   //销毁
+     public void _jspDestroy() {
+     }
+   
+   //jsp服务
+     public void _jspService(HttpServletRequest request, HttpServletResponse response)
+   
+   ```
+
+   
+
+ * web容器（tomcat）会将jsp文件转换成.java文件并编译为  .class文件运行
+
+   ![image-20201228222256066](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20201228222256066.png)
+
+* jsp中的java代码会原封不动的执行，而html代码则会在后台自动转换为 out.write("html代码")的形式输出到页面。
+
+
+
+
+
+jsp响应请求会做一些事情：
+
+ 1. 判断请求是get还是post
+
+ 2. jsp内置了一些对象：
+
+    ``` java
+     	final javax.servlet.jsp.PageContext pageContext; //页面上下文
+        final javax.servlet.ServletContext application;  //servlet上下文对象
+        final javax.servlet.ServletConfig config;		//config
+        javax.servlet.jsp.JspWriter out = null;			//页面输出对象
+        final java.lang.Object page = this;				//代表页面本身
+    
+    ```
+
+	3. 输出页面前，增加了一些代码：
+
+    ``` java
+    
+    response.setContentType("text/html; charset=UTF-8"); //设置响应的文档类型是html，编码为utf-8
+    pageContext = _jspxFactory.getPageContext(this, request, response,null, false, 8192, true);
+    _jspx_page_context = pageContext;
+    application = pageContext.getServletContext();
+    config = pageContext.getServletConfig();
+    out = pageContext.getOut();
+    _jspx_out = out;
+    
+    //上面这些对象，都可以直接在jsp页面中调用
+    ```
+
+    
+
+
+
+### 2. jsp语法
+
+* java语法，jsp都支持，且有一些扩展出来专属于jsp的语法。
+
+  * JSP项目中需要导入的maven包：
+
+    ​	servlet依赖---------javax.servlet
+
+    ​	JSP依赖--------------javax.servlet.jsp
+
+    ​	JSTL表达式依赖---javax.servlet.jsp.jstl
+
+    ​	standard标签库---taglibs
+
+    
+    
+    
+#### 2.1 JSP表达式
+
+
+
+* jsp注释  <%--    --%>
+
+  jsp的注释和html的注释最大区别在于： jsp注释不会再页面html中显示。
+
+
+
+* 用<%=   %>包裹表达式或变量，可以在页面上输出表达式的执行结果
+* **<%= %>与EL表达式 ￥{} 等价。**
+
+``` jsp
+<%--JS表达式--%>
+<%-- <%= 表达式或变量%>的形式，可以直接在页面输出java代码--%>
+<%= new java.util.Date()%>
+<%--等价的EL表达式--%>
+${new java.util.Date()}
+
+```
+
+
+
+* 还可以用 <% %>包裹一大段java代码，在jsp页面中执行。
+
+  ``` jsp
+  <%--还可以直接用 <% %>包裹一段java代码在页面中执行--%>
+  <%
+      int sum=0;
+      for (int i = 0; i < 5; i++) {
+          sum+=1;
+      }
+  
+      out.println("<h3>"+ sum +"</h3>");
+  %>
+  ```
+
+
+
+* 还可以在代码段中嵌入html代码
+
+  ``` jsp
+  <%--还可以在java代码片段中嵌入html代码--%>
+  <table border="1">
+      <tr>
+  
+          <%
+              for (int i = 0; i < 5; i++) {
+          %>
+  
+          <td> 这是tr的第 <%= i+1 %> 列。</td>
+  
+          <%  }  %>
+      </tr>
+  </table>
+  ```
+
+
+
+* 还可以在jsp中声明变量、方法，且作用域比 表达式和代码段中的作用域要高。
+
+  用<%!  %>声明的变量和方法，编译后会被放在 jsp编译的java类中，而不是类中的 jspService方法中。
+
+  ``` jsp
+  <%--在jsp中也可以声明变量或者方法。 在这里声明的，编译后，不会放到 jspService方法中去，而是放在编译后的java类里面，作用域更高。--%>
+  <%!
+      int age;
+  
+      private void toAdd(){
+      System.out.println("在页面中声明一个方法。");
+  }%>
+  ```
+
+  
+
+
+
+#### 2.2 JSP指令
+
+##### 2.2.1  @page指令 
+
+ * 在jsp页面中导入java类包
+
+   ``` jsp
+   <%@ page import="java.util.Date" %>
+   ```
+
+   
+
+ * 配置错误页面
+
+   方法1：在jsp中使用 <%@ page %>配置
+
+   ``` jsp
+   <%@ page errorPage="error/500.jsp" %>
+   ```
+
+   
+
+   方法2：在web.xml中配置：
+
+   ``` xml
+    <error-page>
+       <error-code>404</error-code>
+       <location>/error/404.jsp</location>
+     </error-page>
+   ```
+
+
+
+
+##### 2.2.2： @include指令
+
+​	常用语提取页面公共部分，进行引用。
+
+``` jsp
+<%--使用 @include方法引用，本质是将引用的文件代码拿过来与主体合二为一。--%>
+<%@ include file="common/header.jsp"%>
+<h1>网页主体</h1>
+<%@ include file="common/footer.jsp"%>
+```
+
+* 使用@include指令引用的页面，是将引用的页面内容复制到主体中，合并为一个页面进行输出。
+
+  tomcat生成的页面java文件中，如下：
+
+  ```java
+  out.write("<h1>头部文件</h1>");
+  out.write("\r\n");
+  out.write("<h1>网页主体</h1>\r\n");
+  out.write("\r\n");
+  out.write("<h1>底部文件</h1>");
+  ```
+
+
+
+**使用<jsp:include >引用，显示效果与 @include一样。但是本质不同，jsp标签的引用，是真引用，没有将公共文件代码复制到主体中合并为一个页面，而是真正的三个页面。**
+
+* tomcat生成的页面java文件中，用jsp标签引用生成的代码如下：
+
+  ``` java
+  org.apache.jasper.runtime.JspRuntimeLibrary.include(request, response, "common/header.jsp", out, false);
+  out.write("\r\n");
+  out.write("<h1>网页主体</h1>\r\n");
+  org.apache.jasper.runtime.JspRuntimeLibrary.include(request, response, "common/footer.jsp", out, false);
+  out.write("\r\n");
+  ```
+
+  
+
+#### 2.3 九大内置对象
+
+​	jsp页面在第一次被访问时，会被转成java文件并编译为class文件。这个过程中会产生9个内置对象：
+
+		* pageContext
+		* request
+		* response
+		* session
+		* application-----等于 servletContext
+		* config-----等于 servletConfig
+		* out
+		* exception
+
+
+
+这九个内置对象中，pagecontext、request、session、application都可以保存一些数据，但是作用域不相同：
+
+* pageContext： 保存的数据只在当前页面中有效。
+
+* request：保存的数据在一次请求中有效。如果请求被转发，那么保存的数据也会被携带过去。
+
+* session：保存的数据在当前会话中有效，关闭浏览器结束会话后，失效。
+
+* application：服务器重启前，保存的数据一致有效。
+
+
+
+
+
+``` jsp
+<%--jsp代码段中的代码会直接以java格式输出，所以要严格按照java语法书写。--%>
+<%
+    pageContext.setAttribute("name1","Andy1");  //pageContext保存的数据，只在当前页面有效。
+    request.setAttribute("name2","Andy2");  //request保存的数据，只在一次请求中有效。如果请求被转发，数据也会被携带过去。
+    session.setAttribute("name3","Andy3");  //session保存的数据，在本次会话中有效，会话结束（关闭浏览器）后失效。
+    application.setAttribute("name4","Andy4");  //application保存的数据在服务器重启前一直有效。
+%>
+
+<%--因为JVM的双亲委派机制存在，系统会根据作用域一级一级向上寻找。
+所以，可以用作用域最低的pageContext来findAttribute到全部设置的数据。
+设置的数据类型是String，但是取得的数据是object类型，所以需要强制转换。
+--%>
+<%
+    String name1 = (String) pageContext.findAttribute("name1");
+    String name2 = (String) pageContext.findAttribute("name2");
+    String name3 = (String) pageContext.findAttribute("name3");
+    String name4 = (String) pageContext.findAttribute("name4");
+    String name5 = (String) pageContext.findAttribute("name5");
+%>
+
+<h1>取出的数据如下：</h1>
+
+<h4>1: <%=name1%></h4>
+
+<h4>2: <%=name2%></h4>
+
+<h4>3: <%=name3%></h4>
+
+<h4>4: <%=name4%></h4>
+
+<%--name5并未设置值，所以取出的应为String类型的默认值:null。
+    使用 《%=  》表达式的时候，会显示出 null
+--%>
+<h4>5: <%=name5%></h4>
+
+
+<%--如果使用 EL表达式：  ${} 形式，则会自动过滤掉null，不予显示。
+    EL表达式 ${} 等价于 JSP表达式的 <%= %>
+--%>
+<h4>EL5: ${name5}</h4>
+
+
+
+
+<%
+    //如果请求转发，那么 request保存的参数将会被携带过去。
+    pageContext.forward("pageContextDemo3.jsp");
+%>
+```
+
+
+
+#### 2.4 JSP标签、JSTL标签、EL表达式
+
+如需使用jstl标签和EL表达式，需要提前在pom.xml中导入jstl依赖和standard标签库。
+
+``` xml
+    <dependency>
+      <groupId>taglibs</groupId>
+      <artifactId>standard</artifactId>
+      <version>1.1.2</version>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.servlet.jsp.jstl</groupId>
+      <artifactId>javax.servlet.jsp.jstl-api</artifactId>
+      <version>1.2.2</version>
+    </dependency>
+```
+
+
+
+EL表达式的作用：
+
+* 获取数据
+
+* 执行运算
+
+* 获取web开发的常用对象
+
+  
+
+
+
+##### 2.4.1 JSP标签
+
+``` jsp
+
+<%--
+JSP标签的include，用于引用公共头部、尾部等页面。
+与使用 include指令达成的显示效果一样 <%@ include file=" "%>
+但是JSP标签的引用，本质上还是三个页面拼接成一个完整的页面。而include指令本质是把公共页面的代码复制到主体页面，变成一个页面
+--%>
+<jsp:include page="common/header.jsp"></jsp:include>
+
+
+<%--forward，页面跳转，还可以使用 param传递参数。
+    最终实现效果与 http://localhost:8080/test.jsp?name=abc&age=12 一样
+--%>
+<jsp:forward page="test.jsp">
+    <jsp:param name="name" value="abc"/>
+    <jsp:param name="age" value="12"/>
+</jsp:forward>
+
+<%--可以在test.jsp页面，用jsp表达式取出页面传递过来的参数并打印到屏幕--%>
+姓名：<%=request.getParameter("name")%>
+年龄：<%=request.getParameter("age")%>
+```
+
+
+
+##### 2.4.2  JSTL标签
+
+​	SP标准标签库（JSTL）是一个JSP标签集合，它封装了JSP应用的通用核心功能。
+
+JSTL支持通用的、结构化的任务，比如迭代，条件判断，XML文档操作，国际化标签，SQL标签。 除了这些，它还提供了一个框架来使用集成JSTL的自定义标签。
+
+* 一般只掌握核心库的使用即可。
+
+* JSTL标签是为了弥补html标签的不足，它的功能和java代码一样。
+
+* **使用任何库，你必须在每个 JSP 文件中的头部包含 <taglib> 标签。**
+
+  
+
+![image-20201230221753702](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20201230221753702.png)
+
+
+
+核心标签是最常用的 JSTL标签。引用核心标签库的语法如下：
+
+``` jsp
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+```
+
+
+
+``` jsp
+<%--
+JSTL标签库
+使用JSTL标签库前，必须要在页面中引入。
+--%>
+
+<%--引入JSTL核心库（core库）--%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>Title</title>
+</head>
+<body>
+<form action="jstl-core.jsp" method="get">
+
+    <input type="text" name="username" value="${param.username}">
+    <input type="submit" value="提交">
+</form>
+
+<%--使用JSTL标签判断，如果username的值是 admin，则提示管理员你好--%>
+
+<%--EL表达式获取表单中的参数时，需要用 ${param.参数名}--%>
+<c:if test="${param.username=='admin'}" var="isAdmin">
+    <c:out value="管理员你好。"></c:out>
+</c:if>
+    
+    
+<%--可以使用 <c:set>标签设置一些值--%>
+<%--声明一个变量叫score，值是100--%>
+<c:set var="score" value="100"></c:set>
+
+<%--使用 c:choose 和 c:when 可以做类似switch的多重判断--%>
+<c:choose>
+    <c:when test="${score>=90}"> 成绩优秀 </c:when>
+    <c:when test="${score>=80}"> 成绩还行 </c:when>
+    <c:when test="${score>=70}"> 成绩一般 </c:when>
+    <c:when test="${score<=60}"> 成绩比较差 </c:when>
+</c:choose>
+
+<hr>
+<%
+    ArrayList<String> students = new ArrayList<>();
+    students.add(0,"小明");
+    students.add(1,"小红");
+    students.add(2,"小黑");
+    students.add(3,"小白");
+    students.add(4,"小丽");
+    request.setAttribute("list",students);
+%>
+<%--
+c:forEach循环遍历：
+
+var--循环中的变量
+item---循环的数据源
+bengin---从哪开始
+end---到哪结束
+step---每次循环的步长
+--%>
+<c:forEach var="student" items="${list}" begin="1" end="3" step="2">
+    <c:out value="${student}"></c:out>
+</c:forEach>
+</body>
+</html>
+```
+
+
+
+
+
+
 ## 日积月累
 
 ### 单词
