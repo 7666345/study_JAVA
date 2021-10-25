@@ -1582,6 +1582,545 @@ step---每次循环的步长
 
 
 
+## 三、 JavaBean
+
+实体类
+
+
+
+JavaBean有特定的写法：
+
+- ​	必须要有一个无参构造
+
+- 属性必须私有化
+
+- 必须有对应的get/set方法
+
+  一般用来和数据库的字段做映射  ORM；
+  
+  
+
+ORM：对象关系映射。
+
+- ​	表----> 类
+- ​    字段----> 属性
+- ​    行记录 -----> 对象
+
+![image-20210629163140824](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210629163140824.png)
+
+
+
+
+
+## 四、 MVC三层架构
+
+MVC: 模型、试图、控制器 Model、View、Controller
+
+![image-20210630174507363](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210630174507363.png)
+
+![image-20210630174605419](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210630174605419.png)
+
+Model
+
+- 业务处理：业务逻辑（Service）
+- 数据持久层：CURD操作  （Dao）
+
+
+
+View
+
+- 展示数据
+- 提供链接发起Servlet请求
+
+
+
+Controller（Servlet）
+
+- 接收用户的请求
+
+- 交给业务层处理对应的代码
+
+- 控制视图的跳转
+
+  ```
+  登录--->接收用户的登录请求--->处理用户的请求（获取参数）--->交给业务层处理登录业务（判断用户名密码是否正确）--->Dao层查询用户名密码--->数据库
+  ```
+
+
+
+## 五、 过滤器（filter）
+
+Filter： 过滤器，用来过滤网站数据；
+
+- 处理中文乱码
+- 登录验证
+- 等等
+
+![image-20210708135825195](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210708135825195.png)
+
+
+
+Filter开发步骤：
+
+1. 导包
+
+2. 编写过滤器
+
+   1. 实现过滤器接口，导包不要错
+
+   ![image-20210708140303798](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210708140303798.png)
+
+    2. 实现Filter接口，重写对应的方法
+
+    3. 一定要放行代码： chain.doFilter()方法
+
+       ```java
+       package com.twxiao.filter;
+       
+       import javax.servlet.*;
+       import java.io.IOException;
+       
+       public class CharacterEncodingFilter implements Filter {
+       
+           @Override
+           //初始化，web服务器启动时就已经初始化，开始等待过滤数据
+           public void init(FilterConfig filterConfig) throws ServletException {
+       
+           }
+       
+           @Override
+           public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+               //处理编码格式
+               servletRequest.setCharacterEncoding("utf-8");
+               servletResponse.setCharacterEncoding("utf-8");
+               servletResponse.setContentType("text/html;charset=UTF-8");
+       
+               //过滤器中需要把请求放行，以便继续执行。否则请求会停在这里。
+               filterChain.doFilter(servletRequest,servletResponse);
+           }
+       
+           @Override
+           //销毁
+           public void destroy() {
+       
+           }
+       }
+       
+       ```
+
+       
+
+3. web.xml中配置filter，和配置servlet类似
+
+   ```xml
+       <filter>
+           <filter-name>CharacterEncodingFilter</filter-name>
+           <filter-class>com.twxiao.filter.CharacterEncodingFilter</filter-class>
+       </filter>
+       <filter-mapping>
+           <filter-name>CharacterEncodingFilter</filter-name>
+           <!--只要是经过 /servlet 的请求，都会经过此过滤器-->
+           <url-pattern>/servlet/*</url-pattern>
+       </filter-mapping>
+   ```
+
+
+
+
+
+## 六、 过滤器权限判断
+
+ 1. 用户登录有把信息存入session
+
+ 2. 在请求需要权限验证的页面时，请求先经过过滤器进行判断，具备相关权限才可访问。
+
+    ```java
+        public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
+    
+    
+            //ServletRequest不能获取session，需要类型强制转换为 HttpServletResponse
+    
+            HttpServletRequest req=(HttpServletRequest) servletRequest;
+            HttpServletResponse resp=(HttpServletResponse) servletResponse;
+    
+            //判断是否存在session
+    
+            if(req.getSession().getAttribute(Constant.USER_SESSION) == null){
+                resp.sendRedirect("/error.jsp");
+            }
+            //放行请求
+            filterChain.doFilter(servletRequest,servletResponse);
+        }
+    ```
+
+    
+
+## 七、JDBC
+
+什么是 JDBC：java链接数据库。 链接各种数据库的统一驱动（接口）
+
+![image-20210713105019512](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210713105019512.png)
+
+
+
+使用JDBC，需要 jar包的支持：
+
+- java.sql
+- javax.sql
+- mysql-connective-java
+
+
+
+使用步骤：
+
+1. 导入maven依赖的包
+
+   ```xml
+    <dependencies>
+   <!--       mysql驱动-->
+          <dependency>
+              <groupId>mysql</groupId>
+              <artifactId>mysql-connector-java</artifactId>
+              <version>8.0.25</version>
+          </dependency>
+   
+      </dependencies>
+   ```
+
+
+
+2. 可以在IDEA中链接数据库进行操作
+
+3. 几个操作JDBC的固定步骤（其中sql根据需要进行更换）
+
+   - 加载驱动
+   - 获取数据库链接
+   - 创建向数据库发送sql语句的对象：statement
+   - 编写sql语句
+   - 执行sql （增删改用executeUpdate()方法，查询使用executeQuery（）方法，不建议直接使用execute（）方法，因为影响效率。）
+   - 关闭数据库链接（先开的后关）
+
+   
+
+   ```java
+   public static void main(String[] args) throws ClassNotFoundException, SQLException {
+   
+           //分配
+           String url="jdbc:mysql://localhost:3306/jdbc?useUnicode=true;characterencoding=UTF8";
+           String username="root";
+           String password="password";
+   
+           //加载驱动(通过反射的方式加载)
+           Class.forName("com.mysql.jdbc.Driver");
+   
+           //连接数据库,获取连接
+           Connection conn = DriverManager.getConnection(url, username, password);
+           
+           //创建向数据库发送sql语句的对象
+           Statement statement = conn.createStatement();
+           
+           //编写sql语句
+           String sql="select * from users";
+           
+           //执行sql语句，获取返回的结果集
+           ResultSet rs = statement.executeQuery(sql);//查询语句使用executeQuery（）方法，可以增加效率。比 execute（）方法效率高。
+   
+   
+           //显示结果集
+           while(rs.next()){
+   
+               System.out.println("id="+rs.getObject("id"));
+               System.out.println("username="+rs.getObject("username"));
+               System.out.println("email="+rs.getObject("email"));
+           }
+   ```
+
+   
+
+### JDBC事务
+
+ACID原则，保证数据安全
+
+
+
+### junit单元测试
+
+```xml
+       <dependency>
+           <groupId>junit</groupId>
+           <artifactId>junit</artifactId>
+           <version>4.13.2</version>
+       </dependency>
+```
+
+
+
+​	使用单元测试，可以直接测试方法，而不需要经过 public static void main方法去调用，可以直接运行。
+
+junit的使用方法就是在 方法前加  @Test 。
+
+![image-20210715145056273](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210715145056273.png)
+
+``` java
+package com.twxiao.test;
+
+import org.junit.Test;
+
+public class TestJDBC2 {
+    @Test
+    public void test(){
+        System.out.println("Hello!");
+    }
+
+}
+
+```
+
+
+
+
+
+## 八、 项目： 超时订单管理 smbms
+
+### 一、 IDEA搭建项目，准备工作
+
+1. 创建maven web项目
+
+2. 配置tomcat、测试
+
+3. 导入项目依赖的jar包
+
+   - servlet-api
+   - javax.servlet.jsp-api
+   - mysql-connector-java
+   - jstl-api
+   - standard
+   - junit单元测试
+
+4.  创建项目包结构：com.twxiao.
+
+    - dao：操作数据库
+
+    - filter:过滤器
+
+    - pojo: 实体类
+
+    - service:业务类
+
+    - servlet:
+
+    - util:工具类
+
+      
+
+    ![image-20210720115722111](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210720115722111.png)
+
+5.  编写实体类
+
+    ORM映射：实体类中的字段对应数据库表中的字段
+
+    ![image-20210720120322650](C:\Users\h\AppData\Roaming\Typora\typora-user-images\image-20210720120322650.png)
+
+![image-20210720145538704](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210720145538704.png)
+
+
+
+
+
+6. 编写基础公共类
+
+   1.  数据库配置文件
+
+      resources文件夹下，新建文件，db.properties
+
+      ![image-20210720150557367](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210720150557367.png)
+
+      ```properties
+      
+      driver=com.mysql.jdbc.Driver
+      url=jdbc:mysql://localhost:3306?userUnicode=true&characterEncoding=utf-8
+      user=root
+      password=password
+      ```
+
+   2. 在java/com/twxiao/dao文件夹中编写数据库操作基础类BaseDao。
+
+      连接数据库、执行查询、更新、关闭链接等操作。
+
+   3. 编写字符集过滤器，并在web.xml中注册过滤器。（所有请求都应该通过字符编码过滤器）
+
+      ![image-20210720163015885](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210720163015885.png)
+
+      
+
+   
+
+7. 导入静态资源，要放到webapp目录下，不能放到resources目录。
+
+
+
+### 二、 登录功能实现
+
+![image-20210720171456001](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210720171456001.png)
+
+#### 1. 编写前端页面
+
+​      在web.xml中，把login.jsp设置为首页。设置后打开网页后显示的不是index.JSP而是login.jsp。
+
+```xml
+<!--设置欢迎页面（第一个打开的页面）-->
+<welcome-file-list>
+    <welcome-file>login.jsp</welcome-file>
+</welcome-file-list>
+```
+
+#### 2.编写Dao层用于得到用户登录信息的接口类：UserDao
+
+``` java
+public interface UserDao{
+    //得到要登录的用户
+    public User getLoginUser(Connection conn, String userCode);
+}
+```
+
+### 3. 编写实现UserDao接口的实体类
+
+``` java
+package com.twxiao.dao.user;
+
+import com.twxiao.dao.BaseDao;
+import com.twxiao.pojo.User;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+public class UserDaoImpl implements UserDao{
+
+
+    public User getLoginUser(Connection conn, String userCode) {
+        PreparedStatement pstm=null;
+        ResultSet rs=null;
+        User user=null;
+
+        //使用预编译的sql语句，更安全。
+        String sql="select * from smbms_user where userCode=?";
+        Object[] params={userCode};
+
+        //如果conn数据库连接不等于空，则执行后续判断
+        if(conn != null){
+
+            //使用BaseDao中定义的方法去执行sql
+            try {
+                rs = BaseDao.execute(conn, pstm, rs, sql, params);
+
+                //如果得到的rs有内容，将内容赋值给user对象
+                if(rs.next()){
+
+                    user=new User();
+                    user.setId(rs.getInt("id"));
+                    user.setUserCode(rs.getString("usercode"));
+                    user.setUserName(rs.getString("userName"));
+                    user.setUserPassword(rs.getString("userPassword"));
+                    user.setGender(rs.getInt("gender"));
+                    user.setBirthday(rs.getDate("birthday"));
+                    user.setPhone(rs.getString("phone"));
+                    user.setAddress(rs.getString("address"));
+                    user.setUserRole(rs.getInt("userRole"));
+                    user.setCreatedBy(rs.getInt("createdBy"));
+                    user.setCreationDate(rs.getTimestamp("creationDate"));
+                    user.setModifyBy(rs.getInt("modifyBy"));
+                    user.setModifyDate(rs.getTimestamp("modifyDate"));
+                }
+                //操作完毕后，关闭资源,数据库连接可能还存在其他按业务，这里不关闭连接。
+                BaseDao.closeResource(null,pstm,rs);
+
+            } catch (SQLException throwables) {
+
+                throwables.printStackTrace();
+            }
+
+        }
+
+        //结束操作后返回user信息，给调用这个方法的人。
+        return user;
+    }
+}
+
+```
+
+### 4. 编写业务层接口UserService
+
+
+
+### 5. 编写实现业务接口的实现类UserServiceImpl类
+
+
+
+### 6. 编写Servlet
+
+
+
+
+
+### 7. web.xml中注册servlet
+
+
+
+### 三、 登陆功能优化
+
+#### 1.  注销登录： 移除用户session，并跳转回登录界面
+
+#### 2.用户身份过滤：增加filter过滤器，避免无权限者访问后台
+
+
+
+
+
+
+
+### 四、 修改密码
+
+![image-20210803150539076](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210803150539076.png)
+
+#### 1. 写 UserDao接口
+
+   ![image-20210805143158393](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210805143158393.png)
+
+#### 2. 写UserDao接口实现类
+
+   ![image-20210805143242642](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210805143242642.png)
+
+#### 3. UserService层
+
+![image-20210805154359498](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210805154359498.png)
+
+#### 4. UserService实现类
+
+![image-20210805154425852](C:\Users\h\Desktop\java\studyJAVA\笔记\img\image-20210805154425852.png)
+
+#### 5. UserServlet实现具体功能，同时把功能提取成独立的方法，便于servlet类复用
+
+#### 6. 在xml中注册servlet
+
+#### 7. 测试
+
+#### 8.使用Ajax实现旧密码验证
+
+    ##### 8.1 导入fastjson的maven依赖
+
+```xml
+<!-- https://mvnrepository.com/artifact/com.alibaba/fastjson -->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>fastjson</artifactId>
+    <version>1.2.78</version>
+</dependency>
+
+```
+
+
 
 
 

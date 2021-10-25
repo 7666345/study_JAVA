@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0">
+
+    <servlet>
+        <servlet-name>ShowServlet</servlet-name>
+        <servlet-class>com.twxiao.servlet.ShowServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ShowServlet</servlet-name>
+        <url-pattern>/servlet/show</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ShowServlet</servlet-name>
+        <url-pattern>/show</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>SysLogin</servlet-name>
+        <servlet-class>com.twxiao.servlet.SysLogin</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SysLogin</servlet-name>
+        <url-pattern>/syslogin</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SysLogout</servlet-name>
+        <servlet-class>com.twxiao.servlet.SysLogOut</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SysLogout</servlet-name>
+        <url-pattern>/syslogout</url-pattern>
+    </servlet-mapping>
+
+
+    <filter>
+        <filter-name>SysFilter</filter-name>
+        <filter-class>com.twxiao.filter.SysFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>SysFilter</filter-name>
+        <url-pattern>/sys/*</url-pattern>
+    </filter-mapping>
+
+
+
+    <filter>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <filter-class>com.twxiao.filter.CharacterEncodingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <!--只要是经过 /servlet 的请求，都会经过此过滤器-->
+        <url-pattern>/servlet/*</url-pattern>
+    </filter-mapping>
+
+</web-app>
+

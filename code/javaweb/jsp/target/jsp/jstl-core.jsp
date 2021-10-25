@@ -53,8 +53,11 @@ c:forEach循环遍历：
 
 var--循环中的变量
 item---循环的数据源
+bengin---从哪开始
+end---到哪结束
+step---每次循环的步长
 --%>
-<c:forEach var="student" items="${list}">
+<c:forEach var="student" items="${list}" begin="1" end="3" step="2">
     <c:out value="${student}"></c:out>
 </c:forEach>
 
